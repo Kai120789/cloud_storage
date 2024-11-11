@@ -9,6 +9,9 @@ import (
 )
 
 type Router interface {
+	RegisterNewUser(w http.ResponseWriter, r *http.Request)
+	AuthorizateUser(w http.ResponseWriter, r *http.Request)
+	UserLogout(w http.ResponseWriter, r *http.Request)
 }
 
 func New(h *handler.Handler) http.Handler {
