@@ -1,0 +1,14 @@
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    login VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(50) NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS files (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    path VARCHAR(200) NOT NULL,
+    user_id INTEGER REFERENCES users(id),
+    created_at TIMESTAMPTZ DEFAULT NOW()
+)
