@@ -23,5 +23,17 @@ func New(h *handler.Handler) http.Handler {
 		r.With(middleware.JWT).Delete("Logout", h.UserLogout)
 	})
 
+	r.Route("api/files", func(r chi.Router) {
+		r.With(middleware.JWT).Post("upload", h.UploadFile)
+		r.With(middleware.JWT).Post("/folder", h.CreateFolder)
+		r.With(middleware.JWT).Delete("/{id}", h.DeleteItem)
+		r.With(middleware.JWT).Patch("/{id}", h.RenameItem)
+		r.With(middleware.JWT).Get("/", h.ListDirectory)
+	})
+
+	r.Route("/api/search", func(r chi.Router) {
+		r.With(middleware.JWT).Get("/", h.SearchFiles)
+	})
+
 	return r
 }
