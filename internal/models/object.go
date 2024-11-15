@@ -2,9 +2,10 @@ package models
 
 import "time"
 
-type File struct {
+// file or folder
+type Object struct {
 	ID        uint      `json:"id"`
-	FileName  string    `json:"file_name"`
+	Name      string    `json:"name"`
 	Path      string    `json:"path"`
 	UserID    uint      `json:"user_id"`
 	CreatedAt time.Time `json:"created_at"`
