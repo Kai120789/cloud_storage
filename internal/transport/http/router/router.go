@@ -12,6 +12,12 @@ type Router interface {
 	RegisterNewUser(w http.ResponseWriter, r *http.Request)
 	AuthorizateUser(w http.ResponseWriter, r *http.Request)
 	UserLogout(w http.ResponseWriter, r *http.Request)
+	UploadFile(w http.ResponseWriter, r *http.Request)
+	CreateFolder(w http.ResponseWriter, r *http.Request)
+	DeleteItem(w http.ResponseWriter, r *http.Request)
+	RenameItem(w http.ResponseWriter, r *http.Request)
+	SearchFiles(w http.ResponseWriter, r *http.Request)
+	ListDirectory(w http.ResponseWriter, r *http.Request)
 }
 
 func New(h *handler.Handler) http.Handler {
