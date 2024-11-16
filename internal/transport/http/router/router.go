@@ -24,9 +24,9 @@ func New(h *handler.Handler) http.Handler {
 	r := chi.NewRouter()
 
 	r.Route("/api/user", func(r chi.Router) {
-		r.Post("register", h.RegisterNewUser)
-		r.Post("login", h.AuthorizateUser)
-		r.With(middleware.JWT).Delete("Logout", h.UserLogout)
+		r.Post("register", h.UserHandler.RegisterNewUser)
+		r.Post("login", h.UserHandler.AuthorizateUser)
+		r.With(middleware.JWT).Delete("Logout", h.UserHandler.UserLogout)
 	})
 
 	r.Route("api/files", func(r chi.Router) {
