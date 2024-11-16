@@ -4,6 +4,7 @@ import (
 	"cloud/internal/config"
 	"cloud/internal/dto"
 	"cloud/internal/models"
+	"net/http"
 
 	"go.uber.org/zap"
 )
@@ -31,29 +32,21 @@ func NewFileHandler(s FileHandlerer, l *zap.Logger, c *config.Config) *FileHandl
 	}
 }
 
-func (h *FileHandler) UploadFile(dto dto.Object) (*models.Object, error) {
-	var obj models.Object
-	return &obj, nil
+func (h *FileHandler) UploadFile(w http.ResponseWriter, r *http.Request) {
+
 }
 
-func (h *FileHandler) CreateFolder(dto dto.Object) (*models.Object, error) {
-	var obj models.Object
-	return &obj, nil
+func (h *FileHandler) CreateFolder(w http.ResponseWriter, r *http.Request) {
 }
 
-func (h *FileHandler) DeleteItem(path string) error {
-	return nil
+func (h *FileHandler) DeleteItem(w http.ResponseWriter, r *http.Request) {
 }
 
-func (h *FileHandler) RenameItem(dto dto.Object) (*models.Object, error) {
-	var obj models.Object
-	return &obj, nil
+func (h *FileHandler) RenameItem(w http.ResponseWriter, r *http.Request) {
 }
 
-func (h *FileHandler) SearchFiles() error {
-	return nil
+func (h *FileHandler) SearchFiles(w http.ResponseWriter, r *http.Request) {
 }
 
-func (h *FileHandler) ListDirectory() error {
-	return nil
+func (h *FileHandler) ListDirectory(w http.ResponseWriter, r *http.Request) {
 }

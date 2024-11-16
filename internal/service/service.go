@@ -15,7 +15,7 @@ type Storager struct {
 }
 
 func New(stor Storager, log *zap.Logger) *Service {
-	return &TodoService{
+	return &Service{
 		FileService: *NewFileService(stor.FileStorager, log),
 		UserService: *NewUserService(stor.UserStorager, log),
 	}
