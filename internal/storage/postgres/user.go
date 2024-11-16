@@ -1,4 +1,4 @@
-package storage
+package postgres
 
 import (
 	"cloud/internal/dto"
@@ -11,62 +11,20 @@ import (
 	"go.uber.org/zap"
 )
 
-type Storage struct {
+type UserStorage struct {
 	Conn   *pgxpool.Pool
 	Logger *zap.Logger
 }
 
-func New(dbConn *pgxpool.Pool, log *zap.Logger) *Storage {
-	return &Storage{
+func NewUserStorage(dbConn *pgxpool.Pool, log *zap.Logger) *UserStorage {
+	return &UserStorage{
 		Conn:   dbConn,
 		Logger: log,
 	}
 }
 
-func Connection(connectionStr string) (*pgxpool.Pool, error) {
-	db, err := pgxpool.Connect(context.Background(), connectionStr)
-	if err != nil {
-		return nil, fmt.Errorf("unable to connect to db: %v", err)
-	}
-
-	return db, nil
-}
-
-// func upload file and create new record in files table
-func (s *Storage) UploadFile(dto dto.Object) (*models.Object, error) {
-	var obj models.Object
-	return &obj, nil
-}
-
-// func create folder and create new record in files table
-func (s *Storage) CreateFolder(dto dto.Object) (*models.Object, error) {
-	var obj models.Object
-	return &obj, nil
-}
-
-// func delete file or folder
-func (s *Storage) DeleteItem(path string) error {
-	return nil
-}
-
-// func update record(file or folder) in db and rename it
-func (s *Storage) RenameItem(dto dto.Object) (*models.Object, error) {
-	var obj models.Object
-	return &obj, nil
-}
-
-// func search file by name
-func (s *Storage) SearchFiles() error {
-	return nil
-}
-
-// func return items in directory
-func (s *Storage) ListDirectory() error {
-	return nil
-}
-
 // register new user
-func (s *Storage) RegisterNewUser(body dto.User) (*models.UserToken, error) {
+func (s *UserStorage) RegisterNewUser(body dto.User) (*models.UserToken, error) {
 	var id uint
 	query := `INSERT INTO users (username, password) VALUES ($1, $2) RETURNING id`
 	err := s.Conn.QueryRow(context.Background(), query, body.Login, body.Password).Scan(&id)
@@ -83,7 +41,7 @@ func (s *Storage) RegisterNewUser(body dto.User) (*models.UserToken, error) {
 }
 
 // login user
-func (s *Storage) AuthorizateUser(body dto.User) (*uint, *string, error) {
+func (s *UserStorage) AuthorizateUser(body dto.User) (*uint, *string, error) {
 	var id uint
 	var passwordHash string
 
@@ -100,7 +58,7 @@ func (s *Storage) AuthorizateUser(body dto.User) (*uint, *string, error) {
 }
 
 // get auth user
-func (s *Storage) GetAuthUser(id uint) (*models.UserToken, error) {
+func (s *UserStorage) GetAuthUser(id uint) (*models.UserToken, error) {
 	query := `SELECT * FROM user_token WHERE user_id=$1`
 	row := s.Conn.QueryRow(context.Background(), query, id)
 
@@ -117,7 +75,7 @@ func (s *Storage) GetAuthUser(id uint) (*models.UserToken, error) {
 }
 
 // logout user
-func (s *Storage) UserLogout(id uint) error {
+func (s *UserStorage) UserLogout(id uint) error {
 	query := `DELETE FROM user_token WHERE user_id=$1`
 	_, err := s.Conn.Exec(context.Background(), query, id)
 	if err != nil {
