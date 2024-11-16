@@ -8,10 +8,12 @@ import (
 
 type Handler struct {
 	UserHandler UserHandler
+	FileHandler FileHandler
 }
 
 type Service struct {
 	UserService UserHandlerer
+	FileService FileHandlerer
 }
 
 func New(s Service, log *zap.Logger, cfg *config.Config) Handler {
