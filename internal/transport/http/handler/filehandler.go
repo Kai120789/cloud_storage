@@ -23,8 +23,8 @@ type FileHandlerer interface {
 	ListDirectory() error
 }
 
-func NewFileHandler(s FileHandlerer, l *zap.Logger, c *config.Config) FileHandler {
-	return FileHandler{
+func NewFileHandler(s FileHandlerer, l *zap.Logger, c *config.Config) *FileHandler {
+	return &FileHandler{
 		service: s,
 		logger:  l,
 		config:  c,

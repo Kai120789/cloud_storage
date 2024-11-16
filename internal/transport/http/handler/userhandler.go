@@ -25,8 +25,8 @@ type UserHandlerer interface {
 	UserLogout(id uint) error
 }
 
-func NewUserHandler(s UserHandlerer, l *zap.Logger, c *config.Config) UserHandler {
-	return UserHandler{
+func NewUserHandler(s UserHandlerer, l *zap.Logger, c *config.Config) *UserHandler {
+	return &UserHandler{
 		service: s,
 		logger:  l,
 		config:  c,

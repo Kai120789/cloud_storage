@@ -16,8 +16,9 @@ type Service struct {
 	FileService FileHandlerer
 }
 
-func New(s Service, log *zap.Logger, cfg *config.Config) Handler {
-	return Handler{
-		UserHandler: NewUserHandler(s.UserService, log, cfg),
+func New(s Service, log *zap.Logger, cfg *config.Config) *Handler {
+	return &Handler{
+		UserHandler: *NewUserHandler(s.UserService, log, cfg),
+		FileHandler: *NewFileHandler(s.FileService, log, cfg),
 	}
 }
