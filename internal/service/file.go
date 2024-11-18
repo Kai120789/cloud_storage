@@ -27,3 +27,27 @@ func NewFileService(s FileStorager, l *zap.Logger) *FileService {
 		logger:  l,
 	}
 }
+
+func (s *FileService) UploadFile(dto dto.Object) (*models.Object, error) {
+	return nil, nil
+}
+
+func (s *FileService) CreateFolder(dto dto.Object) (*models.Object, error) {
+	return nil, nil
+}
+
+func (s *FileService) DeleteItem(path string) error {
+	return nil
+}
+
+func (s *FileService) RenameItem(dto dto.Object) (*models.Object, error) {
+	return nil, nil
+}
+
+func (s *FileService) SearchFiles() error {
+	return nil
+}
+
+func (s *FileService) ListDirectory() error {
+	return nil
+}

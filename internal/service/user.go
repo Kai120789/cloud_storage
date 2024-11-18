@@ -64,3 +64,12 @@ func (t *UserService) UserLogout(id uint) error {
 
 	return nil
 }
+
+func (t *UserService) WriteRefreshToken(userId uint, refreshTokenValue string) error {
+	err := t.storage.WriteRefreshToken(userId, refreshTokenValue)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

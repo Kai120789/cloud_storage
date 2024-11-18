@@ -84,3 +84,14 @@ func (s *UserStorage) UserLogout(id uint) error {
 
 	return nil
 }
+
+// add refresh token to db
+func (d *UserStorage) WriteRefreshToken(userId uint, refreshTokenValue string) error {
+	query := `INSERT INTO user_token (user_id, refresh_token) VALUES ($1, $2)`
+	_, err := d.Conn.Exec(context.Background(), query, userId, refreshTokenValue)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
