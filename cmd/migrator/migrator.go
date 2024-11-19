@@ -10,7 +10,6 @@ import (
 
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/joho/godotenv"
-	"go.uber.org/zap"
 )
 
 func main() {
@@ -19,13 +18,14 @@ func main() {
 	dbDSN := os.Getenv("DBDSN")
 
 	// reedit string for use migrations out of docker
-	migrateDsn := dbDSN[:27] + "localhost:5431/taskdb?sslmode=disable"
+	migrateDsn := dbDSN[:27] + "localhost:5434/cloudstor?sslmode=disable"
 
 	fmt.Println(migrateDsn)
 
 	db, err := pgxpool.Connect(context.Background(), migrateDsn)
 	if err != nil {
-		zap.S().Fatal("connect db error: ", err)
+		fmt.Println(err.Error())
+		return
 	}
 
 	var direction string
@@ -54,6 +54,7 @@ func Migrate(db *pgxpool.Pool, migrationPath string, direction string) error {
 	}
 
 	for _, file := range files {
+
 		if strings.HasSuffix(file.Name(), fmt.Sprintf(".%s.sql", direction)) {
 			sqlFilePath := filepath.Join(migrationPath, file.Name())
 			err := executeMigration(db, sqlFilePath)

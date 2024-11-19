@@ -3,10 +3,11 @@ services:
     image: postgres:16
     container_name: postgres
     env_file:
-      - ../../metrics_server/.env
+      - ../../cloud_storage/.env
     volumes:
       - db-data:/var/lib/postgresql/data
     ports:
       - "5434:5432"
-    networks:
-      - task-net
+
+volumes:
+  db-data:
