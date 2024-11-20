@@ -27,7 +27,9 @@ func (s *FileStorage) CreateNewFileOrFold(dto dto.Object) (*models.Object, error
 	var id uint
 	var createdAt time.Time
 	query := `INSERT INTO files (name, path, user_id) VALUES ($1, $2, $3) RETURNING id, created_at`
-	err := s.Conn.QueryRow(context.Background(), query, dto.Name, dto.Path, dto.UserID).Scan(&id, &createdAt)
+	row := s.Conn.QueryRow(context.Background(), query, dto.Name, dto.Path, dto.UserID)
+
+	err := row.Scan(&id, &createdAt)
 	if err != nil {
 		s.Logger.Error("create file or folder error", zap.Error(err))
 		return nil, err
@@ -50,13 +52,29 @@ func (s *FileStorage) DeleteItem(path string) error {
 	_, err := s.Conn.Exec(context.Background(), query, path)
 	if err != nil {
 		s.Logger.Error("delete file or folder error", zap.Error(err))
+		return err
 	}
 	return nil
 }
 
 // func update record(file or folder) in db and rename it
 func (s *FileStorage) RenameItem(dto dto.Object) (*models.Object, error) {
+	query := `UPDATE files SET name=$1 WHERE path=$2`
+	_, err := s.Conn.Exec(context.Background(), query, dto.Name, dto.Path)
+	if err != nil {
+		s.Logger.Error("rename file or folder error", zap.Error(err))
+		return nil, err
+	}
+
+	query = `SELECT * FROM files WHERE path=$1`
+	row := s.Conn.QueryRow(context.Background(), query, dto.Path)
+
 	var obj models.Object
+	err = row.Scan(&obj.ID, &obj.Name, &obj.Path, &obj.UserID, &obj.CreatedAt)
+	if err != nil {
+		s.Logger.Error("set file or folder error", zap.Error(err))
+		return nil, err
+	}
 	return &obj, nil
 }
 
