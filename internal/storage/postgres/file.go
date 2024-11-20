@@ -29,7 +29,7 @@ func (s *FileStorage) CreateNewFileOrFold(dto dto.Object) (*models.Object, error
 	query := `INSERT INTO files (name, path, user_id) VALUES ($1, $2, $3) RETURNING id, created_at`
 	err := s.Conn.QueryRow(context.Background(), query, dto.Name, dto.Path, dto.UserID).Scan(&id, &createdAt)
 	if err != nil {
-		s.Logger.Error("upload file error", zap.Error(err))
+		s.Logger.Error("create file or folder error", zap.Error(err))
 		return nil, err
 	}
 
@@ -46,6 +46,11 @@ func (s *FileStorage) CreateNewFileOrFold(dto dto.Object) (*models.Object, error
 
 // func delete file or folder
 func (s *FileStorage) DeleteItem(path string) error {
+	query := `DELETE FROM files WHERE path=$1`
+	_, err := s.Conn.Exec(context.Background(), query, path)
+	if err != nil {
+		s.Logger.Error("delete file or folder error", zap.Error(err))
+	}
 	return nil
 }
 
