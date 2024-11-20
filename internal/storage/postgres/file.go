@@ -23,7 +23,7 @@ func NewFileStorage(dbConn *pgxpool.Pool, log *zap.Logger) *FileStorage {
 }
 
 // func upload file and create new record in files table
-func (s *FileStorage) UploadFile(dto dto.Object) (*models.Object, error) {
+func (s *FileStorage) CreateNewFileOrFold(dto dto.Object) (*models.Object, error) {
 	var id uint
 	var createdAt time.Time
 	query := `INSERT INTO files (name, path, user_id) VALUES ($1, $2, $3) RETURNING id, created_at`
@@ -41,12 +41,6 @@ func (s *FileStorage) UploadFile(dto dto.Object) (*models.Object, error) {
 		CreatedAt: createdAt,
 	}
 
-	return &obj, nil
-}
-
-// func create folder and create new record in files table
-func (s *FileStorage) CreateFolder(dto dto.Object) (*models.Object, error) {
-	var obj models.Object
 	return &obj, nil
 }
 

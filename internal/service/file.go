@@ -13,8 +13,7 @@ type FileService struct {
 }
 
 type FileStorager interface {
-	UploadFile(dto dto.Object) (*models.Object, error)
-	CreateFolder(dto dto.Object) (*models.Object, error)
+	CreateNewFileOrFold(dto dto.Object) (*models.Object, error)
 	DeleteItem(path string) error
 	RenameItem(dto dto.Object) (*models.Object, error)
 	SearchFiles() error
