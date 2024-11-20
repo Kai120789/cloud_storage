@@ -3,6 +3,8 @@ package postgres
 import (
 	"cloud/internal/dto"
 	"cloud/internal/models"
+	"context"
+	"time"
 
 	"github.com/jackc/pgx/v4/pgxpool"
 	"go.uber.org/zap"
@@ -22,7 +24,23 @@ func NewFileStorage(dbConn *pgxpool.Pool, log *zap.Logger) *FileStorage {
 
 // func upload file and create new record in files table
 func (s *FileStorage) UploadFile(dto dto.Object) (*models.Object, error) {
-	var obj models.Object
+	var id uint
+	var createdAt time.Time
+	query := `INSERT INTO files (name, path, user_id) VALUES ($1, $2, $3) RETURNING id, created_at`
+	err := s.Conn.QueryRow(context.Background(), query, dto.Name, dto.Path, dto.UserID).Scan(&id, &createdAt)
+	if err != nil {
+		s.Logger.Error("upload file error", zap.Error(err))
+		return nil, err
+	}
+
+	var obj models.Object = models.Object{
+		ID:        id,
+		Name:      dto.Name,
+		Path:      dto.Path,
+		UserID:    dto.UserID,
+		CreatedAt: createdAt,
+	}
+
 	return &obj, nil
 }
 
