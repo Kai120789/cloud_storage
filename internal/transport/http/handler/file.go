@@ -4,6 +4,7 @@ import (
 	"cloud/internal/config"
 	"cloud/internal/dto"
 	"cloud/internal/models"
+	"encoding/json"
 	"net/http"
 
 	"go.uber.org/zap"
@@ -33,10 +34,49 @@ func NewFileHandler(s FileHandlerer, l *zap.Logger, c *config.Config) *FileHandl
 }
 
 func (h *FileHandler) UploadFile(w http.ResponseWriter, r *http.Request) {
+	var file dto.Object
+	if err := json.NewDecoder(r.Body).Decode(&file); err != nil {
+		http.Error(w, "Invalid input", http.StatusBadRequest)
+		return
+	}
 
+	if file.Name == "" {
+		http.Error(w, "file name cannot be empty", http.StatusBadRequest)
+		return
+	}
+
+	fileRet, err := h.service.UploadFile(file)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(fileRet)
 }
 
 func (h *FileHandler) CreateFolder(w http.ResponseWriter, r *http.Request) {
+	var folder dto.Object
+	if err := json.NewDecoder(r.Body).Decode(&folder); err != nil {
+		http.Error(w, "Invalid input", http.StatusBadRequest)
+		return
+	}
+
+	if folder.Name == "" {
+		http.Error(w, "folder name cannot be empty", http.StatusBadRequest)
+		return
+	}
+
+	folderRet, err := h.service.UploadFile(folder)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(folderRet)
 }
 
 func (h *FileHandler) DeleteItem(w http.ResponseWriter, r *http.Request) {
