@@ -80,9 +80,41 @@ func (h *FileHandler) CreateFolder(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *FileHandler) DeleteItem(w http.ResponseWriter, r *http.Request) {
+	var obj dto.Object
+	if err := json.NewDecoder(r.Body).Decode(&obj); err != nil {
+		http.Error(w, "Invalid input", http.StatusBadRequest)
+		return
+	}
+
+	if err := h.service.DeleteItem(obj.Path); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (h *FileHandler) RenameItem(w http.ResponseWriter, r *http.Request) {
+	var obj dto.Object
+	if err := json.NewDecoder(r.Body).Decode(&obj); err != nil {
+		http.Error(w, "Invalid input", http.StatusBadRequest)
+		return
+	}
+
+	if obj.Name == "" {
+		http.Error(w, "object name cannot be empty", http.StatusBadRequest)
+		return
+	}
+
+	objRet, err := h.service.RenameItem(obj)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(objRet)
 }
 
 func (h *FileHandler) SearchFiles(w http.ResponseWriter, r *http.Request) {
