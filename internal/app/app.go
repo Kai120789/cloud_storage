@@ -4,6 +4,7 @@ import (
 	"cloud/internal/config"
 	"cloud/internal/service"
 	"cloud/internal/storage/postgres"
+	"cloud/internal/storage/redis"
 	"cloud/internal/transport/http/handler"
 	"cloud/internal/transport/http/router"
 	"cloud/pkg/logger"
@@ -38,16 +39,23 @@ func StartServer() {
 	defer dbConn.Close()
 
 	// init postgres
-	db := postgres.New(dbConn, log)
+	db := postgres.NewPostgresStorage(dbConn, log)
 
 	// init redis
+	redisAddr := "localhost:6379"
+	redisPassword := "" // Задайте пароль, если требуется
+	redisDB := 0        // Используем базу данных 0
+
+	// Создаем экземпляр RedisStorage
+	redisStorage := redis.NewRedisStorage(redisAddr, redisPassword, redisDB)
 
 	// init minio
 
 	// init service
 	serv := service.New(service.Storager{
-		UserStorager: db,
-		FileStorager: &db.FileStorage,
+		UserStorager:  db,
+		FileStorager:  &db.FileStorage,
+		TokenStorager: redisStorage,
 	}, log)
 
 	// init handler

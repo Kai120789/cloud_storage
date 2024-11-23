@@ -16,7 +16,6 @@ type UserService struct {
 type UserStorager interface {
 	RegisterNewUser(body dto.User) (*models.UserToken, error)
 	AuthorizateUser(body dto.User) (*uint, *string, error)
-	WriteRefreshToken(userId uint, refreshTokenValue string) error
 	UserLogout(id uint) error
 }
 
@@ -58,15 +57,6 @@ func (t *UserService) AuthorizateUser(body dto.User) (*uint, error) {
 
 func (t *UserService) UserLogout(id uint) error {
 	err := t.storage.UserLogout(uint(id))
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (t *UserService) WriteRefreshToken(userId uint, refreshTokenValue string) error {
-	err := t.storage.WriteRefreshToken(userId, refreshTokenValue)
 	if err != nil {
 		return err
 	}

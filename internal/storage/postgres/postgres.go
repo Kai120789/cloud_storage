@@ -16,7 +16,7 @@ type PostgreStorage struct {
 	Logger *zap.Logger
 }
 
-func New(dbConn *pgxpool.Pool, log *zap.Logger) *PostgreStorage {
+func NewPostgresStorage(dbConn *pgxpool.Pool, log *zap.Logger) *PostgreStorage {
 	return &PostgreStorage{
 		Conn:   dbConn,
 		Logger: log,
