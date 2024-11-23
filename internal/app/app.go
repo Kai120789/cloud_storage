@@ -37,12 +37,16 @@ func StartServer() {
 	}
 	defer dbConn.Close()
 
-	// init storage
+	// init postgres
 	db := postgres.New(dbConn, log)
+
+	// init redis
+
+	// init minio
 
 	// init service
 	serv := service.New(service.Storager{
-		UserStorager: &db.UserStorage,
+		UserStorager: db,
 		FileStorager: &db.FileStorage,
 	}, log)
 
