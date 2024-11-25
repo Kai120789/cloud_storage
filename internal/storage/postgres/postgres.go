@@ -82,14 +82,3 @@ func (s *PostgreStorage) GetAuthUser(id uint) (*models.UserToken, error) {
 
 	return &token, nil
 }
-
-// logout user
-func (s *PostgreStorage) UserLogout(id uint) error {
-	query := `DELETE FROM user_token WHERE user_id=$1`
-	_, err := s.Conn.Exec(context.Background(), query, id)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}

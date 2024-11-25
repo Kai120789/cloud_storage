@@ -11,10 +11,4 @@ CREATE TABLE IF NOT EXISTS files (
     path VARCHAR(500) UNIQUE NOT NULL,
     user_id INTEGER REFERENCES users(id),
     created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE TABLE IF NOT EXISTS user_token (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    refresh_token VARCHAR(200) NOT NULL
 )
