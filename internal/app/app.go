@@ -3,6 +3,7 @@ package app
 import (
 	"cloud/internal/config"
 	"cloud/internal/service"
+	"cloud/internal/storage/minio"
 	"cloud/internal/storage/postgres"
 	"cloud/internal/storage/redis"
 	"cloud/internal/transport/http/handler"
@@ -50,6 +51,9 @@ func StartServer() {
 	redisStorage := redis.NewRedisStorage(redisAddr, redisPassword, redisDB)
 
 	// init minio
+	minio, err := minio.NewMinioStorage()
+
+	_ = minio
 
 	// init service
 	serv := service.New(service.Storager{

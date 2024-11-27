@@ -2,51 +2,36 @@ package minio
 
 import (
 	"context"
-	"fmt"
-	"log"
-	"os"
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 )
 
-func InitMinio() *minio.Client {
-	endpoint := os.Getenv("MINIO_ENDPOINT")
-	accessKeyID := os.Getenv("MINIO_ACCESS_KEY")
-	secretAccessKey := os.Getenv("MINIO_SECRET_KEY")
-	useSSL := false
-
-	minioClient, err := minio.New(endpoint, &minio.Options{
-		Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
-		Secure: useSSL,
-	})
-	if err != nil {
-		log.Fatalf("Failed to create MinIO client: %v", err)
-	}
-
-	bucketName := os.Getenv("BUCKET_NAME")
-	location := "eu-central-1"
-
-	err = createBucket(minioClient, bucketName, location)
-	if err != nil {
-		log.Fatalf("Failed to create bucket: %v", err)
-	}
-
-	return minioClient
+type MinioStorage struct {
+	client *minio.Client
+	bucket string
 }
 
-func createBucket(client *minio.Client, bucketName, location string) error {
-	ctx := context.Background()
-	err := client.MakeBucket(ctx, bucketName, minio.MakeBucketOptions{Region: location})
+// Init MinIO client
+func NewMinioStorage(endpoint, accessKey, secretKey, bucket string) (*MinioStorage, error) {
+	client, err := minio.New(endpoint, &minio.Options{
+		Creds:  credentials.NewStaticV4(accessKey, secretKey, ""),
+		Secure: false,
+	})
 	if err != nil {
-		exists, errBucketExists := client.BucketExists(ctx, bucketName)
-		if errBucketExists == nil && exists {
-			fmt.Printf("Bucket %s already exists\n", bucketName)
-			return nil
-		}
-		return fmt.Errorf("failed to create bucket %v: %v", bucketName, err)
+		return nil, err
 	}
 
-	fmt.Printf("Successfully created bucket %s\n", bucketName)
-	return nil
+	// Create bucket
+	err = client.MakeBucket(context.Background(), bucket, minio.MakeBucketOptions{})
+	if err != nil {
+		exists, errBucketExists := client.BucketExists(context.Background(), bucket)
+		if errBucketExists == nil && exists {
+
+		} else {
+			return nil, err
+		}
+	}
+
+	return &MinioStorage{client: client, bucket: bucket}, nil
 }
