@@ -51,14 +51,15 @@ func StartServer() {
 	redisStorage := redis.NewRedisStorage(redisAddr, redisPassword, redisDB)
 
 	// init minio
-	minio, err := minio.NewMinioStorage()
-
-	_ = minio
+	minio, err := minio.NewMinioStorage("localhost:9000", "access-key", "secret-key", "my-bucket")
+	if err != nil {
+		log.Fatal("error init minio", zap.Error(err))
+	}
 
 	// init service
 	serv := service.New(service.Storager{
 		UserStorager:  db,
-		FileStorager:  &db.FileStorage,
+		FileStorager:  minio,
 		TokenStorager: redisStorage,
 	}, log)
 
