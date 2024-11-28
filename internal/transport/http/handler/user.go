@@ -19,7 +19,7 @@ type UserHandler struct {
 }
 
 type UserHandlerer interface {
-	RegisterNewUser(body dto.User) (*models.UserToken, error)
+	RegisterNewUser(body dto.User) (*models.User, error)
 	AuthorizateUser(body dto.User) (*uint, error)
 	WriteRefreshToken(userId uint, refreshTokenValue string) error
 }

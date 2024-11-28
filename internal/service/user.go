@@ -15,7 +15,7 @@ type UserService struct {
 }
 
 type UserStorager interface {
-	RegisterNewUser(body dto.User) (*models.UserToken, error)
+	RegisterNewUser(body dto.User) (*models.User, error)
 	AuthorizateUser(body dto.User) (*uint, *string, error)
 }
 
@@ -31,7 +31,7 @@ func NewUserService(s UserStorager, l *zap.Logger, r TokenStorager) *UserService
 	}
 }
 
-func (t *UserService) RegisterNewUser(body dto.User) (*models.UserToken, error) {
+func (t *UserService) RegisterNewUser(body dto.User) (*models.User, error) {
 	passwordHash, err := hash.HashPassword(body.Password)
 	if err != nil {
 		return nil, err

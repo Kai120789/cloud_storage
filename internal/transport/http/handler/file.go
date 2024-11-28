@@ -34,26 +34,26 @@ func NewFileHandler(s FileHandlerer, l *zap.Logger, c *config.Config) *FileHandl
 }
 
 func (h *FileHandler) UploadFile(w http.ResponseWriter, r *http.Request) {
-	var file dto.Object
-	if err := json.NewDecoder(r.Body).Decode(&file); err != nil {
-		http.Error(w, "Invalid input", http.StatusBadRequest)
-		return
-	}
-
-	if file.Name == "" {
-		http.Error(w, "file name cannot be empty", http.StatusBadRequest)
-		return
-	}
-
-	fileRet, err := h.service.UploadFile(file)
+	file, handler, err := r.FormFile("file")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Unable to retrieve file from form", http.StatusBadRequest)
+		return
+	}
+	defer file.Close()
+
+	path := r.FormValue("path")
+	if path == "" {
+		http.Error(w, "Path is required", http.StatusBadRequest)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
+	h.logger.Info("File uploaded",
+		zap.String("filename", handler.Filename),
+		zap.String("path", path),
+	)
+
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(fileRet)
+	w.Write([]byte("File uploaded successfully"))
 }
 
 func (h *FileHandler) CreateFolder(w http.ResponseWriter, r *http.Request) {
