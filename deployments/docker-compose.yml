@@ -9,5 +9,20 @@ services:
     ports:
       - "5434:5432"
 
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=access-key
+      - MINIO_ROOT_PASSWORD=secret-key
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    restart: unless-stopped
+
 volumes:
+  minio_data:
   db-data:
