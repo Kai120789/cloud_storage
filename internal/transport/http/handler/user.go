@@ -22,7 +22,6 @@ type UserHandlerer interface {
 	RegisterNewUser(body dto.User) (*models.UserToken, error)
 	AuthorizateUser(body dto.User) (*uint, error)
 	WriteRefreshToken(userId uint, refreshTokenValue string) error
-	UserLogout(id uint) error
 }
 
 func NewUserHandler(s UserHandlerer, l *zap.Logger, c *config.Config) *UserHandler {
@@ -114,55 +113,4 @@ func (h *UserHandler) AuthorizateUser(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(accessTokenValue)
-}
-
-// Logout user
-func (h *UserHandler) UserLogout(w http.ResponseWriter, r *http.Request) {
-	var user dto.User
-	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-		http.Error(w, "Invalid input", http.StatusBadRequest)
-		return
-	}
-
-	if user.Login == "" {
-		http.Error(w, "username cannot be empty", http.StatusBadRequest)
-		return
-	}
-
-	userID, err := h.service.AuthorizateUser(user)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusUnauthorized)
-		return
-	}
-
-	err = h.service.UserLogout(*userID)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	expiredCookie := time.Now().Add(-1 * time.Hour)
-
-	accessTokenCokie := http.Cookie{
-		Name:     "access_token",
-		Value:    "",
-		Path:     "/",
-		Expires:  expiredCookie,
-		HttpOnly: true,
-		Secure:   false,
-	}
-
-	refreshTokenCokie := http.Cookie{
-		Name:     "refresh_token",
-		Value:    "",
-		Path:     "/",
-		Expires:  expiredCookie,
-		HttpOnly: true,
-		Secure:   false,
-	}
-
-	http.SetCookie(w, &accessTokenCokie)
-	http.SetCookie(w, &refreshTokenCokie)
-
-	w.WriteHeader(http.StatusNoContent)
 }

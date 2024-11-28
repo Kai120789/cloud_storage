@@ -44,10 +44,9 @@ func StartServer() {
 
 	// init redis
 	redisAddr := "localhost:6379"
-	redisPassword := "" // Задайте пароль, если требуется
-	redisDB := 0        // Используем базу данных 0
+	redisPassword := ""
+	redisDB := 0
 
-	// Создаем экземпляр RedisStorage
 	redisStorage := redis.NewRedisStorage(redisAddr, redisPassword, redisDB)
 
 	// init minio

@@ -5,9 +5,8 @@ import (
 )
 
 type Service struct {
-	UserService  UserService
-	FileService  FileService
-	TokenService TokenService
+	UserService UserService
+	FileService FileService
 }
 
 type Storager struct {
@@ -18,8 +17,7 @@ type Storager struct {
 
 func New(stor Storager, log *zap.Logger) *Service {
 	return &Service{
-		FileService:  *NewFileService(stor.FileStorager, log),
-		UserService:  *NewUserService(stor.UserStorager, log),
-		TokenService: *NewTokenService(stor.TokenStorager, log),
+		FileService: *NewFileService(stor.FileStorager, log),
+		UserService: *NewUserService(stor.UserStorager, log, stor.TokenStorager),
 	}
 }

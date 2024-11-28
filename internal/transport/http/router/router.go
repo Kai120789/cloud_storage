@@ -11,7 +11,7 @@ import (
 type Router interface {
 	RegisterNewUser(w http.ResponseWriter, r *http.Request)
 	AuthorizateUser(w http.ResponseWriter, r *http.Request)
-	UserLogout(w http.ResponseWriter, r *http.Request)
+	//UserLogout(w http.ResponseWriter, r *http.Request)
 	UploadFile(w http.ResponseWriter, r *http.Request)
 	CreateFolder(w http.ResponseWriter, r *http.Request)
 	DeleteItem(w http.ResponseWriter, r *http.Request)
@@ -26,7 +26,7 @@ func New(h *handler.Handler) http.Handler {
 	r.Route("/api/user", func(r chi.Router) {
 		r.Post("/register", h.UserHandler.RegisterNewUser)
 		r.Post("/login", h.UserHandler.AuthorizateUser)
-		r.With(middleware.JWT).Delete("/logout", h.UserHandler.UserLogout)
+		//r.With(middleware.JWT).Delete("/logout", h.UserHandler.UserLogout)
 	})
 
 	r.Route("/api/files", func(r chi.Router) {

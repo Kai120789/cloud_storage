@@ -5,6 +5,7 @@ import (
 	"cloud/internal/dto"
 	"cloud/internal/models"
 	"context"
+	"strings"
 	"time"
 
 	"github.com/minio/minio-go/v7"
@@ -97,4 +98,57 @@ func (s *MinioStorage) RenameItem(obj dto.Object) (*models.Object, error) {
 	}
 
 	return &retObj, nil
+}
+
+func (s *MinioStorage) ListDirectory(path string) ([]models.Object, error) {
+	ctx := context.Background()
+
+	objects := []models.Object{}
+	objectCh := s.client.ListObjects(ctx, s.bucket, minio.ListObjectsOptions{
+		Prefix:    path,
+		Recursive: false,
+	})
+
+	for obj := range objectCh {
+		if obj.Err != nil {
+			return nil, obj.Err
+		}
+
+		objects = append(objects, models.Object{
+			Name:      obj.Key,
+			Path:      obj.Key,
+			CreatedAt: obj.LastModified,
+		})
+	}
+
+	return objects, nil
+}
+
+func (s *MinioStorage) SearchFiles(query string) ([]models.Object, error) {
+	ctx := context.Background()
+
+	objects := []models.Object{}
+	objectCh := s.client.ListObjects(ctx, s.bucket, minio.ListObjectsOptions{
+		Recursive: true,
+	})
+
+	for obj := range objectCh {
+		if obj.Err != nil {
+			return nil, obj.Err
+		}
+
+		if query == "" || contains(obj.Key, query) {
+			objects = append(objects, models.Object{
+				Name:      obj.Key,
+				Path:      obj.Key,
+				CreatedAt: obj.LastModified,
+			})
+		}
+	}
+
+	return objects, nil
+}
+
+func contains(key, query string) bool {
+	return strings.Contains(key, query)
 }

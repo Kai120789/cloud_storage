@@ -10,6 +10,7 @@ import (
 
 type UserService struct {
 	storage UserStorager
+	redis   TokenStorager
 	logger  *zap.Logger
 }
 
@@ -18,10 +19,15 @@ type UserStorager interface {
 	AuthorizateUser(body dto.User) (*uint, *string, error)
 }
 
-func NewUserService(s UserStorager, l *zap.Logger) *UserService {
+type TokenStorager interface {
+	WriteRefreshToken(userId uint, refreshTokenValue string) error
+}
+
+func NewUserService(s UserStorager, l *zap.Logger, r TokenStorager) *UserService {
 	return &UserService{
 		storage: s,
 		logger:  l,
+		redis:   r,
 	}
 }
 
@@ -52,4 +58,13 @@ func (t *UserService) AuthorizateUser(body dto.User) (*uint, error) {
 	}
 
 	return id, nil
+}
+
+func (t *UserService) WriteRefreshToken(userId uint, refreshTokenValue string) error {
+	err := t.redis.WriteRefreshToken(userId, refreshTokenValue)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

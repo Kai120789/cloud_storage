@@ -21,8 +21,8 @@ type FileHandlerer interface {
 	CreateFolder(dto dto.Object) (*models.Object, error)
 	DeleteItem(path string) error
 	RenameItem(dto dto.Object) (*models.Object, error)
-	SearchFiles() error
-	ListDirectory() error
+	SearchFiles(query string) ([]models.Object, error)
+	ListDirectory(path string) ([]models.Object, error)
 }
 
 func NewFileHandler(s FileHandlerer, l *zap.Logger, c *config.Config) *FileHandler {

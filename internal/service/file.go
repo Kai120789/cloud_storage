@@ -16,8 +16,8 @@ type FileStorager interface {
 	CreateNewFileOrFold(dto dto.Object) (*models.Object, error)
 	DeleteItem(path string) error
 	RenameItem(dto dto.Object) (*models.Object, error)
-	SearchFiles() error
-	ListDirectory() error
+	SearchFiles(query string) ([]models.Object, error)
+	ListDirectory(path string) ([]models.Object, error)
 }
 
 func NewFileService(s FileStorager, l *zap.Logger) *FileService {
@@ -66,10 +66,10 @@ func (s *FileService) RenameItem(dto dto.Object) (*models.Object, error) {
 	return file, nil
 }
 
-func (s *FileService) SearchFiles() error {
-	return nil
+func (s *FileService) SearchFiles(query string) ([]models.Object, error) {
+	return s.storage.SearchFiles(query)
 }
 
-func (s *FileService) ListDirectory() error {
-	return nil
+func (s *FileService) ListDirectory(path string) ([]models.Object, error) {
+	return s.storage.ListDirectory(path)
 }
