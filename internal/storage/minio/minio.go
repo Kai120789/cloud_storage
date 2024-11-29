@@ -64,7 +64,6 @@ func (s *MinioStorage) CreateNewFileOrFold(file io.Reader, obj dto.Object) (*mod
 	createdObj := &models.Object{
 		Name:      obj.Name,
 		Path:      obj.Path,
-		UserID:    obj.UserID,
 		CreatedAt: time.Now(),
 	}
 
@@ -99,7 +98,6 @@ func (s *MinioStorage) RenameItem(obj dto.Object) (*models.Object, error) {
 	retObj := models.Object{
 		Name:      obj.Name,
 		Path:      newPath,
-		UserID:    obj.UserID,
 		CreatedAt: time.Now(),
 	}
 

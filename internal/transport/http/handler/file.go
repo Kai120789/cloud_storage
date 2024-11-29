@@ -50,9 +50,8 @@ func (h *FileHandler) UploadFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	dtoObj := dto.Object{
-		Name:    handler.Filename,
-		Path:    path + "/" + handler.Filename,
-		Content: nil,
+		Name: handler.Filename,
+		Path: path + "/" + handler.Filename,
 	}
 
 	uploadedFile, err := h.service.UploadFile(file, dtoObj)
@@ -111,9 +110,8 @@ func (h *FileHandler) RenameItem(w http.ResponseWriter, r *http.Request) {
 	}
 
 	dtoObj := dto.Object{
-		Name:    name,
-		Path:    path + "/" + name,
-		Content: nil,
+		Name: name,
+		Path: path + "/" + name,
 	}
 
 	uploadedFile, err := h.service.UploadFile(file, dtoObj)
