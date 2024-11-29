@@ -49,9 +49,9 @@ func (h *FileHandler) UploadFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	dtoObj := dto.Object{
-		Name:    handler.Filename,              // Имя файла
-		Path:    path + "/" + handler.Filename, // Полный путь к файлу
-		Content: nil,                           // Не используется в текущей реализации
+		Name:    handler.Filename,
+		Path:    path + "/" + handler.Filename,
+		Content: nil,
 	}
 
 	uploadedFile, err := h.service.UploadFile(file, dtoObj)

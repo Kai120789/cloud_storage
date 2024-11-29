@@ -47,7 +47,6 @@ func NewMinioStorage(endpoint, accessKey, secretKey, bucket string) (*MinioStora
 }
 
 func (s *MinioStorage) CreateNewFileOrFold(file io.Reader, obj dto.Object) (*models.Object, error) {
-	// Загрузка файла в MinIO
 	_, err := s.client.PutObject(
 		context.Background(),
 		s.bucket,
@@ -84,17 +83,14 @@ func (s *MinioStorage) DeleteItem(path string) error {
 
 func (s *MinioStorage) RenameItem(obj dto.Object) (*models.Object, error) {
 	ctx := context.Background()
-	newPath := obj.Path // Новый путь из DTO
+	newPath := obj.Path
 
-	// Копируем объект
 	src := minio.CopySrcOptions{Bucket: s.bucket, Object: obj.Path}
 	dst := minio.CopyDestOptions{Bucket: s.bucket, Object: newPath}
 	_, err := s.client.CopyObject(ctx, dst, src)
 	if err != nil {
 		return nil, err
 	}
-
-	// Удаляем старый объект
 	err = s.DeleteItem(obj.Path)
 	if err != nil {
 		return nil, err
