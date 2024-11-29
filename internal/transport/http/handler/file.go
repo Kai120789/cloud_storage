@@ -22,7 +22,7 @@ type FileHandlerer interface {
 	UploadFile(file io.Reader, dto dto.Object) (*models.Object, error)
 	CreateFolder(dto dto.Object) (*models.Object, error)
 	DeleteItem(path string) error
-	RenameItem(dto dto.Object) (*models.Object, error)
+	RenameItem(file dto.Object, newName string) (*models.Object, error)
 	SearchFiles(query string) ([]models.Object, error)
 	ListDirectory(path string) ([]models.Object, error)
 }
@@ -96,7 +96,7 @@ func (h *FileHandler) DeleteItem(w http.ResponseWriter, r *http.Request) {
 
 func (h *FileHandler) RenameItem(w http.ResponseWriter, r *http.Request) {
 	name := chi.URLParam(r, "name")
-	file, _, err := r.FormFile("file")
+	file, handler, err := r.FormFile("file")
 	if err != nil {
 		http.Error(w, "Unable to retrieve file from form", http.StatusBadRequest)
 		return
@@ -110,11 +110,11 @@ func (h *FileHandler) RenameItem(w http.ResponseWriter, r *http.Request) {
 	}
 
 	dtoObj := dto.Object{
-		Name: name,
-		Path: path + "/" + name,
+		Name: handler.Filename,
+		Path: path,
 	}
 
-	uploadedFile, err := h.service.UploadFile(file, dtoObj)
+	uploadedFile, err := h.service.RenameItem(dtoObj, name)
 	if err != nil {
 		h.logger.Error("Error uploading file", zap.Error(err))
 		http.Error(w, "Error uploading file", http.StatusInternalServerError)

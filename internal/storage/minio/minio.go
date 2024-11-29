@@ -80,23 +80,25 @@ func (s *MinioStorage) DeleteItem(path string) error {
 	return nil
 }
 
-func (s *MinioStorage) RenameItem(obj dto.Object) (*models.Object, error) {
+func (s *MinioStorage) RenameItem(file dto.Object, newName string) (*models.Object, error) {
 	ctx := context.Background()
-	newPath := obj.Path
 
-	src := minio.CopySrcOptions{Bucket: s.bucket, Object: obj.Path}
+	oldPath := file.Path + file.Name
+	newPath := file.Path + "/" + newName
+
+	src := minio.CopySrcOptions{Bucket: s.bucket, Object: oldPath}
 	dst := minio.CopyDestOptions{Bucket: s.bucket, Object: newPath}
 	_, err := s.client.CopyObject(ctx, dst, src)
 	if err != nil {
 		return nil, err
 	}
-	err = s.DeleteItem(obj.Path)
+	err = s.DeleteItem(oldPath)
 	if err != nil {
 		return nil, err
 	}
 
 	retObj := models.Object{
-		Name:      obj.Name,
+		Name:      newName,
 		Path:      newPath,
 		CreatedAt: time.Now(),
 	}

@@ -16,7 +16,7 @@ type FileService struct {
 type FileStorager interface {
 	CreateNewFileOrFold(file io.Reader, dto dto.Object) (*models.Object, error)
 	DeleteItem(path string) error
-	RenameItem(dto dto.Object) (*models.Object, error)
+	RenameItem(file dto.Object, newName string) (*models.Object, error)
 	SearchFiles(query string) ([]models.Object, error)
 	ListDirectory(path string) ([]models.Object, error)
 }
@@ -57,14 +57,14 @@ func (s *FileService) DeleteItem(path string) error {
 	return nil
 }
 
-func (s *FileService) RenameItem(dto dto.Object) (*models.Object, error) {
-	file, err := s.storage.RenameItem(dto)
+func (s *FileService) RenameItem(file dto.Object, newName string) (*models.Object, error) {
+	fileRet, err := s.storage.RenameItem(file, newName)
 	if err != nil {
 		s.logger.Error("rename file error", zap.Error(err))
 		return nil, err
 	}
 
-	return file, nil
+	return fileRet, nil
 }
 
 func (s *FileService) SearchFiles(query string) ([]models.Object, error) {
