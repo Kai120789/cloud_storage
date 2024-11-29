@@ -1,10 +1,10 @@
 package minio
 
 import (
-	"bytes"
 	"cloud/internal/dto"
 	"cloud/internal/models"
 	"context"
+	"io"
 	"strings"
 	"time"
 
@@ -46,8 +46,18 @@ func NewMinioStorage(endpoint, accessKey, secretKey, bucket string) (*MinioStora
 	return &minio, nil
 }
 
-func (s *MinioStorage) CreateNewFileOrFold(obj dto.Object) (*models.Object, error) {
-	_, err := s.client.PutObject(context.Background(), s.bucket, obj.Path, bytes.NewReader(obj.Content), int64(len(obj.Content)), minio.PutObjectOptions{})
+func (s *MinioStorage) CreateNewFileOrFold(file io.Reader, obj dto.Object) (*models.Object, error) {
+	// Загрузка файла в MinIO
+	_, err := s.client.PutObject(
+		context.Background(),
+		s.bucket,
+		obj.Path,
+		file,
+		-1,
+		minio.PutObjectOptions{
+			ContentType: "application/octet-stream",
+		},
+	)
 	if err != nil {
 		return nil, err
 	}

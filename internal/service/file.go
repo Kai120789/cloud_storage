@@ -3,6 +3,7 @@ package service
 import (
 	"cloud/internal/dto"
 	"cloud/internal/models"
+	"io"
 
 	"go.uber.org/zap"
 )
@@ -13,7 +14,7 @@ type FileService struct {
 }
 
 type FileStorager interface {
-	CreateNewFileOrFold(dto dto.Object) (*models.Object, error)
+	CreateNewFileOrFold(file io.Reader, dto dto.Object) (*models.Object, error)
 	DeleteItem(path string) error
 	RenameItem(dto dto.Object) (*models.Object, error)
 	SearchFiles(query string) ([]models.Object, error)
@@ -27,24 +28,24 @@ func NewFileService(s FileStorager, l *zap.Logger) *FileService {
 	}
 }
 
-func (s *FileService) UploadFile(dto dto.Object) (*models.Object, error) {
-	file, err := s.storage.CreateNewFileOrFold(dto)
+func (s *FileService) UploadFile(file io.Reader, dto dto.Object) (*models.Object, error) {
+	fileRet, err := s.storage.CreateNewFileOrFold(file, dto)
 	if err != nil {
 		s.logger.Error("upload file error", zap.Error(err))
 		return nil, err
 	}
 
-	return file, nil
+	return fileRet, nil
 }
 
 func (s *FileService) CreateFolder(dto dto.Object) (*models.Object, error) {
-	folder, err := s.storage.CreateNewFileOrFold(dto)
+	/*folder, err := s.storage.CreateNewFileOrFold(dto)
 	if err != nil {
 		s.logger.Error("create folder error", zap.Error(err))
 		return nil, err
-	}
+	}*/
 
-	return folder, nil
+	return nil, nil
 }
 
 func (s *FileService) DeleteItem(path string) error {

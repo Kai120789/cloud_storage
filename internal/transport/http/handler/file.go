@@ -5,6 +5,7 @@ import (
 	"cloud/internal/dto"
 	"cloud/internal/models"
 	"encoding/json"
+	"io"
 	"net/http"
 
 	"go.uber.org/zap"
@@ -17,7 +18,7 @@ type FileHandler struct {
 }
 
 type FileHandlerer interface {
-	UploadFile(dto dto.Object) (*models.Object, error)
+	UploadFile(file io.Reader, dto dto.Object) (*models.Object, error)
 	CreateFolder(dto dto.Object) (*models.Object, error)
 	DeleteItem(path string) error
 	RenameItem(dto dto.Object) (*models.Object, error)
@@ -47,6 +48,19 @@ func (h *FileHandler) UploadFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	dtoObj := dto.Object{
+		Name:    handler.Filename,              // Имя файла
+		Path:    path + "/" + handler.Filename, // Полный путь к файлу
+		Content: nil,                           // Не используется в текущей реализации
+	}
+
+	uploadedFile, err := h.service.UploadFile(file, dtoObj)
+	if err != nil {
+		h.logger.Error("Error uploading file", zap.Error(err))
+		http.Error(w, "Error uploading file", http.StatusInternalServerError)
+		return
+	}
+
 	h.logger.Info("File uploaded",
 		zap.String("filename", handler.Filename),
 		zap.String("path", path),
@@ -54,29 +68,11 @@ func (h *FileHandler) UploadFile(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte("File uploaded successfully"))
+	json.NewEncoder(w).Encode(uploadedFile)
 }
 
 func (h *FileHandler) CreateFolder(w http.ResponseWriter, r *http.Request) {
-	var folder dto.Object
-	if err := json.NewDecoder(r.Body).Decode(&folder); err != nil {
-		http.Error(w, "Invalid input", http.StatusBadRequest)
-		return
-	}
 
-	if folder.Name == "" {
-		http.Error(w, "folder name cannot be empty", http.StatusBadRequest)
-		return
-	}
-
-	folderRet, err := h.service.UploadFile(folder)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(folderRet)
 }
 
 func (h *FileHandler) DeleteItem(w http.ResponseWriter, r *http.Request) {
@@ -118,7 +114,31 @@ func (h *FileHandler) RenameItem(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *FileHandler) SearchFiles(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query().Get("query")
+
+	files, err := h.service.SearchFiles(query)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(files)
 }
 
 func (h *FileHandler) ListDirectory(w http.ResponseWriter, r *http.Request) {
+	path := r.URL.Query().Get("path")
+	if path == "" {
+		http.Error(w, "path is required", http.StatusBadRequest)
+		return
+	}
+
+	objects, err := h.service.ListDirectory(path)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(objects)
 }
