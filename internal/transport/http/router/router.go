@@ -33,7 +33,7 @@ func New(h *handler.Handler) http.Handler {
 		r.With(middleware.JWT).Post("/upload", h.FileHandler.UploadFile)
 		r.With(middleware.JWT).Post("/folder", h.FileHandler.CreateFolder)
 		r.With(middleware.JWT).Delete("/{name}", h.FileHandler.DeleteItem)
-		r.With(middleware.JWT).Patch("/{name}", h.FileHandler.RenameItem)
+		r.With(middleware.JWT).Put("/{name}", h.FileHandler.RenameItem)
 		r.With(middleware.JWT).Get("/", h.FileHandler.ListDirectory)
 	})
 
