@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
 )
 
@@ -76,13 +77,17 @@ func (h *FileHandler) CreateFolder(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *FileHandler) DeleteItem(w http.ResponseWriter, r *http.Request) {
-	var obj dto.Object
-	if err := json.NewDecoder(r.Body).Decode(&obj); err != nil {
-		http.Error(w, "Invalid input", http.StatusBadRequest)
+	path := r.FormValue("path")
+	if path == "" {
+		http.Error(w, "Path is required", http.StatusBadRequest)
 		return
 	}
 
-	if err := h.service.DeleteItem(obj.Path); err != nil {
+	name := chi.URLParam(r, "name")
+
+	delPath := path + "/" + name
+
+	if err := h.service.DeleteItem(delPath); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -91,26 +96,41 @@ func (h *FileHandler) DeleteItem(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *FileHandler) RenameItem(w http.ResponseWriter, r *http.Request) {
-	var obj dto.Object
-	if err := json.NewDecoder(r.Body).Decode(&obj); err != nil {
-		http.Error(w, "Invalid input", http.StatusBadRequest)
-		return
-	}
-
-	if obj.Name == "" {
-		http.Error(w, "object name cannot be empty", http.StatusBadRequest)
-		return
-	}
-
-	objRet, err := h.service.RenameItem(obj)
+	name := chi.URLParam(r, "name")
+	file, _, err := r.FormFile("file")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Unable to retrieve file from form", http.StatusBadRequest)
+		return
+	}
+	defer file.Close()
+
+	path := r.FormValue("path")
+	if path == "" {
+		http.Error(w, "Path is required", http.StatusBadRequest)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(objRet)
+	dtoObj := dto.Object{
+		Name:    name,
+		Path:    path + "/" + name,
+		Content: nil,
+	}
+
+	uploadedFile, err := h.service.UploadFile(file, dtoObj)
+	if err != nil {
+		h.logger.Error("Error uploading file", zap.Error(err))
+		http.Error(w, "Error uploading file", http.StatusInternalServerError)
+		return
+	}
+
+	h.logger.Info("File uploaded",
+		zap.String("filename", name),
+		zap.String("path", name),
+	)
+
+	w.WriteHeader(http.StatusCreated)
+	w.Write([]byte("File uploaded successfully"))
+	json.NewEncoder(w).Encode(uploadedFile)
 }
 
 func (h *FileHandler) SearchFiles(w http.ResponseWriter, r *http.Request) {
