@@ -34,11 +34,13 @@ func New(h *handler.Handler) http.Handler {
 		r.With(middleware.JWT).Post("/folder", h.FileHandler.CreateFolder)
 		r.With(middleware.JWT).Delete("/{name}", h.FileHandler.DeleteItem)
 		r.With(middleware.JWT).Put("/{name}", h.FileHandler.RenameItem)
+		r.With(middleware.JWT).Get("/{path}", h.FileHandler.ListDirectory)
 		r.With(middleware.JWT).Get("/", h.FileHandler.ListDirectory)
+
 	})
 
 	r.Route("/api/search", func(r chi.Router) {
-		r.With(middleware.JWT).Get("/", h.FileHandler.SearchFiles)
+		r.With(middleware.JWT).Get("/{query}", h.FileHandler.SearchFiles)
 	})
 
 	return r

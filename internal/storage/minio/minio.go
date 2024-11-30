@@ -139,6 +139,10 @@ func (s *MinioStorage) RenameItem(file dto.Object, newName string) (*models.Obje
 func (s *MinioStorage) ListDirectory(path string) ([]models.Object, error) {
 	ctx := context.Background()
 
+	if path != "" && !strings.HasSuffix(path, "/") {
+		path += "/"
+	}
+
 	objects := []models.Object{}
 	objectCh := s.client.ListObjects(ctx, s.bucket, minio.ListObjectsOptions{
 		Prefix:    path,
@@ -150,11 +154,19 @@ func (s *MinioStorage) ListDirectory(path string) ([]models.Object, error) {
 			return nil, obj.Err
 		}
 
-		objects = append(objects, models.Object{
-			Name:      obj.Key,
-			Path:      obj.Key,
-			CreatedAt: obj.LastModified,
-		})
+		if obj.Key == path {
+			continue
+		}
+
+		relativePath := strings.TrimPrefix(obj.Key, path)
+
+		if !strings.Contains(relativePath, "/") || strings.HasSuffix(relativePath, "/") {
+			objects = append(objects, models.Object{
+				Name:      relativePath,
+				Path:      obj.Key,
+				CreatedAt: obj.LastModified,
+			})
+		}
 	}
 
 	return objects, nil

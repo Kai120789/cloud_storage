@@ -157,8 +157,7 @@ func (h *FileHandler) RenameItem(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *FileHandler) SearchFiles(w http.ResponseWriter, r *http.Request) {
-	query := r.URL.Query().Get("query")
-
+	query := chi.URLParam(r, "query")
 	files, err := h.service.SearchFiles(query)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -170,11 +169,7 @@ func (h *FileHandler) SearchFiles(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *FileHandler) ListDirectory(w http.ResponseWriter, r *http.Request) {
-	path := r.URL.Query().Get("path")
-	if path == "" {
-		http.Error(w, "path is required", http.StatusBadRequest)
-		return
-	}
+	path := chi.URLParam(r, "path")
 
 	objects, err := h.service.ListDirectory(path)
 	if err != nil {
