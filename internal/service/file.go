@@ -39,13 +39,13 @@ func (s *FileService) UploadFile(file io.Reader, dto dto.Object) (*models.Object
 }
 
 func (s *FileService) CreateFolder(dto dto.Object) (*models.Object, error) {
-	/*folder, err := s.storage.CreateNewFileOrFold(dto)
+	folder, err := s.storage.CreateNewFileOrFold(nil, dto)
 	if err != nil {
 		s.logger.Error("create folder error", zap.Error(err))
 		return nil, err
-	}*/
+	}
 
-	return nil, nil
+	return folder, nil
 }
 
 func (s *FileService) DeleteItem(path string) error {

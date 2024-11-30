@@ -72,7 +72,32 @@ func (h *FileHandler) UploadFile(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *FileHandler) CreateFolder(w http.ResponseWriter, r *http.Request) {
+	path := r.FormValue("path")
+	if path == "" {
+		http.Error(w, "Path is required", http.StatusBadRequest)
+		return
+	}
 
+	dtoObj := dto.Object{
+		Name: "",
+		Path: path + "/" + "",
+	}
+
+	uploadedFile, err := h.service.CreateFolder(dtoObj)
+	if err != nil {
+		h.logger.Error("Error uploading file", zap.Error(err))
+		http.Error(w, "Error uploading file", http.StatusInternalServerError)
+		return
+	}
+
+	h.logger.Info("File uploaded",
+		zap.String("filename", ""),
+		zap.String("path", path),
+	)
+
+	w.WriteHeader(http.StatusCreated)
+	w.Write([]byte("File uploaded successfully"))
+	json.NewEncoder(w).Encode(uploadedFile)
 }
 
 func (h *FileHandler) DeleteItem(w http.ResponseWriter, r *http.Request) {

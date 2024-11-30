@@ -1,9 +1,11 @@
 package minio
 
 import (
+	"bytes"
 	"cloud/internal/dto"
 	"cloud/internal/models"
 	"context"
+	"fmt"
 	"io"
 	"strings"
 	"time"
@@ -47,6 +49,34 @@ func NewMinioStorage(endpoint, accessKey, secretKey, bucket string) (*MinioStora
 }
 
 func (s *MinioStorage) CreateNewFileOrFold(file io.Reader, obj dto.Object) (*models.Object, error) {
+	if file == nil {
+		if !strings.HasSuffix(obj.Path, "/") {
+			obj.Path += "/"
+		}
+
+		_, err := s.client.PutObject(
+			context.Background(),
+			s.bucket,
+			obj.Path,
+			bytes.NewReader([]byte{}),
+			0,
+			minio.PutObjectOptions{
+				ContentType: "application/x-directory",
+			},
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create folder: %w", err)
+		}
+
+		createdFolder := &models.Object{
+			Name:      obj.Name,
+			Path:      obj.Path,
+			CreatedAt: time.Now(),
+		}
+
+		return createdFolder, nil
+	}
+
 	_, err := s.client.PutObject(
 		context.Background(),
 		s.bucket,
@@ -58,16 +88,16 @@ func (s *MinioStorage) CreateNewFileOrFold(file io.Reader, obj dto.Object) (*mod
 		},
 	)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to upload file: %w", err)
 	}
 
-	createdObj := &models.Object{
+	createdFile := &models.Object{
 		Name:      obj.Name,
 		Path:      obj.Path,
 		CreatedAt: time.Now(),
 	}
 
-	return createdObj, nil
+	return createdFile, nil
 }
 
 func (s *MinioStorage) DeleteItem(path string) error {
