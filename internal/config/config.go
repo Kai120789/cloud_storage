@@ -34,7 +34,7 @@ func GetConfig() (*Config, error) {
 	flag.StringVar(&cfg.DBDSN, "d", "", "DBDSN for database")
 
 	cfg.SecretKey = getEnvStringOrDefault("SECRET_KEY", "default")
-	cfg.ServerAddress = getEnvStringOrDefault("SERVER_ADDRESS", "localhost:8080")
+	cfg.ServerAddress = getEnvStringOrDefault("ADDRESS", "localhost:8080")
 	cfg.DBDSN = getEnvStringOrDefault("DBDSN", "")
 	cfg.RedisAddr = getEnvStringOrDefault("REDIS_ADDRESS", "")
 	cfg.RedisPass = getEnvStringOrDefault("REDIS_PASS", "")
