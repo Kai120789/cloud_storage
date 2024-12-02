@@ -30,7 +30,7 @@ services:
     ports:
       - "6379:6379"
     environment:
-      REDIS_PASSWORD: ""
+      REDIS_PASSWORD: "123456"
     volumes:
       - redis_data:/data
 

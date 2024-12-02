@@ -12,10 +12,17 @@ import (
 var AppConfig *Config
 
 type Config struct {
-	ServerAddress string
-	DBDSN         string
-	LogLevel      string
-	SecretKey     string
+	ServerAddress  string
+	DBDSN          string
+	LogLevel       string
+	SecretKey      string
+	RedisAddr      string
+	RedisPass      string
+	RedisDB        int
+	MinioEndpoint  string
+	MinioAccessKey string
+	MinioSecretKey string
+	MinioBucket    string
 }
 
 func GetConfig() (*Config, error) {
@@ -29,6 +36,19 @@ func GetConfig() (*Config, error) {
 	cfg.SecretKey = getEnvStringOrDefault("SECRET_KEY", "default")
 	cfg.ServerAddress = getEnvStringOrDefault("SERVER_ADDRESS", "localhost:8080")
 	cfg.DBDSN = getEnvStringOrDefault("DBDSN", "")
+	cfg.RedisAddr = getEnvStringOrDefault("REDIS_ADDRESS", "")
+	cfg.RedisPass = getEnvStringOrDefault("REDIS_PASS", "")
+	cfg.MinioEndpoint = getEnvStringOrDefault("MINIO_ENDPOINT", "")
+	cfg.MinioAccessKey = getEnvStringOrDefault("MINIO_ACCESS_KEY", "")
+	cfg.MinioSecretKey = getEnvStringOrDefault("MINIO_SECRET_KEY", "")
+	cfg.MinioBucket = getEnvStringOrDefault("MINIO_BUCKET", "")
+
+	redisDB, err := getEnvIntOrDefault("REDIS_DB", 0)
+	if err != nil {
+		return nil, err
+	}
+
+	cfg.RedisDB = *redisDB
 
 	if envLogLevel := os.Getenv("LOG_LEVEL"); envLogLevel != "" {
 		cfg.LogLevel = envLogLevel

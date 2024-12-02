@@ -43,14 +43,10 @@ func StartServer() {
 	db := postgres.NewPostgresStorage(dbConn, log)
 
 	// init redis
-	redisAddr := "localhost:6379"
-	redisPassword := ""
-	redisDB := 0
-
-	redisStorage := redis.NewRedisStorage(redisAddr, redisPassword, redisDB)
+	redisStorage := redis.NewRedisStorage(cfg.RedisAddr, cfg.RedisPass, cfg.RedisDB)
 
 	// init minio
-	minio, err := minio.NewMinioStorage("localhost:9000", "access-key", "secret-key", "my-bucket")
+	minio, err := minio.NewMinioStorage(cfg.MinioEndpoint, cfg.MinioAccessKey, cfg.MinioSecretKey, cfg.MinioBucket)
 	if err != nil {
 		log.Fatal("error init minio", zap.Error(err))
 	}
