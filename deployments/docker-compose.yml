@@ -23,6 +23,20 @@ services:
     command: server /data --console-address ":9001"
     restart: unless-stopped
 
+  redis:
+    image: redis:latest
+    container_name: redis
+    command: ["redis-server", "--requirepass", ""]
+    ports:
+      - "6379:6379"
+    environment:
+      REDIS_PASSWORD: ""
+    volumes:
+      - redis_data:/data
+
+
 volumes:
   minio_data:
   db-data:
+  redis_data:
+    driver: local
