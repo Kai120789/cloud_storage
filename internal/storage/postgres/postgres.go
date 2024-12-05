@@ -36,7 +36,13 @@ func Connection(connectionStr string) (*pgxpool.Pool, error) {
 func (s *PostgreStorage) RegisterNewUser(body dto.User) (*models.User, error) {
 	var userRet models.User
 	query := `INSERT INTO users (login, password) VALUES ($1, $2) RETURNING id, login, password, created_at`
-	err := s.Conn.QueryRow(context.Background(), query, body.Login, body.Password).Scan(&userRet.ID, &userRet.Login, &userRet.Password, &userRet.CreatedAt)
+	row := s.Conn.QueryRow(context.Background(), query, body.Login, body.Password)
+
+	err := row.Scan(&userRet.ID,
+		&userRet.Login,
+		&userRet.Password,
+		&userRet.CreatedAt,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +56,9 @@ func (s *PostgreStorage) AuthorizateUser(body dto.User) (*uint, *string, error) 
 	var passwordHash string
 
 	query := `SELECT id, password FROM users WHERE login=$1`
-	err := s.Conn.QueryRow(context.Background(), query, body.Login).Scan(&id, &passwordHash)
+	row := s.Conn.QueryRow(context.Background(), query, body.Login)
+
+	err := row.Scan(&id, &passwordHash)
 	if err != nil {
 		if err == pgx.ErrNoRows {
 			return nil, nil, fmt.Errorf("user not found")
